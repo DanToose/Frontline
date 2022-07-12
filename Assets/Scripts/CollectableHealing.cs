@@ -18,10 +18,10 @@ public class CollectableHealing : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
+        Debug.Log("I hit something");
         if (other.gameObject.tag == "Player")
         {
-            //Debug.Log("COLLISION WITH Plank!");
+            Debug.Log("COLLISION WITH Healing!");
             PlayerEntity.GetComponent<PlayerInventory>().AddHealing();
             Destroy(gameObject);
         }
