@@ -8,13 +8,11 @@ public class NavmeshAgentScript : MonoBehaviour
 
     public Transform target;
     NavMeshAgent agent;
-    public GameObject patrolTarget1;
-    public GameObject patrolTarget2;
-    public GameObject patrolTarget3;
-    public GameObject patrolTarget4;
-    public List<GameObject> waypoints;
+    public GameObject[] wayPoints;
+
     private Transform currentDestination;
     private int PatrolPoint;
+    private int PatrolPointCount;
     private float dist;
     private float seenDist;
     public int AIState;
@@ -23,13 +21,13 @@ public class NavmeshAgentScript : MonoBehaviour
     public float chaseSpeed;
 
     public Vector3 guardPosition;
+    public Vector3 initialFacingDirection;
     public float sightRange;
     public bool inLoS; // NOT USED? Delete?
     private bool hadChased;
     public Vector3 lastSeenAt;
     public float delay = 3f;
-
-    public float checkpointRange = 0.8f;
+    public float patrolCheckRange;
 
     // This enemy uses an integer to flag the AI state:
 
@@ -42,10 +40,12 @@ public class NavmeshAgentScript : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         target = GameObject.FindGameObjectWithTag("PlayerBody").transform;
         PatrolPoint = 0;
-        waypoints.Add(patrolTarget1);
-        waypoints.Add(patrolTarget2);
-        waypoints.Add(patrolTarget3);
-        waypoints.Add(patrolTarget4);
+        PatrolPointCount = wayPoints.Length;
+        if (patrolCheckRange == 0)
+        {
+            patrolCheckRange = 0.5f;
+        }
+        initialFacingDirection = transform.localEulerAngles;
     }
 
     void DelayedSwitch()
@@ -70,12 +70,12 @@ public class NavmeshAgentScript : MonoBehaviour
         {
             agent.speed = chaseSpeed;
             seenDist = Vector3.Distance(lastSeenAt, guardPosition);
-            if (seenDist > 0.3)
+            if (seenDist > 2.0)
             {
                 agent.SetDestination(lastSeenAt);
-                //Debug.Log("lastSeenAt = " + lastSeenAt + " seenDist = " + seenDist);
+                Debug.Log("lastSeenAt = " + lastSeenAt + " seenDist = " + seenDist);
             }
-            else if (seenDist <= 0.3)
+            else if (seenDist <= 2.0)
             {
                 Invoke("DelayedSwitch", delay);
                 seenDist = 100;
@@ -85,23 +85,38 @@ public class NavmeshAgentScript : MonoBehaviour
         if (AIState == 3) // ON PATROL -- THIS ALL WORKS AS DESIRED. 
         {
             agent.speed = patrolSpeed;
-            currentDestination = waypoints[PatrolPoint].transform;
-            dist = Vector3.Distance(currentDestination.position, transform.position);
-
-            Debug.Log(PatrolPoint);
-
-            if (dist > checkpointRange)
+            if (wayPoints.Length > 0)
             {
-                agent.SetDestination(currentDestination.position);
+                currentDestination = wayPoints[PatrolPoint].transform;
+                dist = Vector3.Distance(currentDestination.position, transform.position);
+                //Debug.Log("No of points: " + PatrolPointCount + " Current: " + PatrolPoint);
+
+                if (dist > patrolCheckRange)
+                {
+                    agent.SetDestination(currentDestination.position);
+                }
+                else if (dist <= patrolCheckRange && PatrolPoint == (PatrolPointCount - 1))
+                {
+                    PatrolPoint = 0;
+                }
+
+                else if (dist <= patrolCheckRange && PatrolPoint < (PatrolPointCount - 1))
+                {
+                    PatrolPoint++;
+
+                }
             }
-            else if (dist <= checkpointRange && PatrolPoint == 3)
-            {
-                PatrolPoint = 0;
-            }
 
-            else if (dist <= checkpointRange && PatrolPoint < 3)
+            if (wayPoints.Length == 1)
             {
-                PatrolPoint++;
+                //Debug.Log(initialFacingDirection);
+                currentDestination = wayPoints[PatrolPoint].transform;
+                dist = Vector3.Distance(currentDestination.position, transform.position);
+                if (dist <= patrolCheckRange)
+                {
+                    transform.localEulerAngles = initialFacingDirection;
+                    //Debug.Log(transform.localEulerAngles + " and " + initialFacingDirection);
+                }
             }
         }
     }

@@ -19,6 +19,12 @@ public class PlayerInventory : MonoBehaviour
         plankCount = 0;
         fireSpellCount = 2;
         healingPackCount = 0;
+
+        plankText = GameObject.Find("PlankCount").GetComponent<Text>();
+        healingText = GameObject.Find("HealingCount").GetComponent<Text>();
+        fireText = GameObject.Find("FireCount").GetComponent<Text>();
+
+
     }
 
     // Update is called once per frame
@@ -42,5 +48,20 @@ public class PlayerInventory : MonoBehaviour
     public void AddHealing()
     {
         healingPackCount++;
+    }
+
+    public void LostSpell()
+    {
+        fireSpellCount--;
+    }
+
+    public void LostPlank()
+    {
+        plankCount--;
+    }
+
+    public void LostHealing()
+    {
+        healingPackCount--;
     }
 }
