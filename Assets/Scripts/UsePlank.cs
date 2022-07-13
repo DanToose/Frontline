@@ -33,10 +33,11 @@ public class UsePlank : MonoBehaviour
 
         if (plankIsPlacable == true && keyWasPressed)
         {
-            Debug.Log("plank placement fired");
+            //Debug.Log("plank placement fired");
             plankIsPlacable = false;
             blockMesh.GetComponent<Collider>().enabled = false;
             plankMesh.enabled = true;
+            player.GetComponent<PlayerInventory>().LostPlank();
         }
     }
 
