@@ -8,6 +8,11 @@ public class PlayerHealth : MonoBehaviour
     public float playerHealth;
     public Text healthText;
     public float playerMaxHealth = 100;
+    public KeyCode healthKey;
+    private GameObject player;
+    public float healingPackAmount;
+
+    private bool keyWasPressed;
 
     // THIS SCRIPT ALSO CONTAINS RESPAWN INFO FOR THE PLAYER
     //public GameObject currentCheckpoint;
@@ -17,6 +22,7 @@ public class PlayerHealth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
         playerHealth = playerMaxHealth;
         healthText.text = "Health: " + playerHealth;
         //currentCheckpoint = GameObject.FindGameObjectWithTag("StartPoint");
@@ -33,6 +39,19 @@ public class PlayerHealth : MonoBehaviour
             {
                 playerHealth = 0;
                 playerDeath();
+            }
+        }
+
+        keyWasPressed = false;
+        keyWasPressed = Input.GetKeyDown(healthKey);
+
+        if (player.GetComponent<PlayerInventory>().healingPackCount > 0 && keyWasPressed)
+        {
+            playerHealth += healingPackAmount;
+            player.GetComponent<PlayerInventory>().LostHealing();
+            if (playerHealth > playerMaxHealth)
+            {
+                playerHealth = playerMaxHealth;
             }
         }
     }
